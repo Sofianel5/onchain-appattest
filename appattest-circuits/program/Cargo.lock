@@ -15,7 +15,6 @@ dependencies = [
  "base64-url",
  "cbor",
  "lib",
- "rustc-serialize",
  "serde",
  "serde_cbor",
  "serde_derive",

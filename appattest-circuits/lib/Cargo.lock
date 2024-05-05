@@ -3,10 +3,23 @@
 version = 3
 
 [[package]]
-name = "lib2"
+name = "byteorder"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
+
+[[package]]
+name = "half"
+version = "1.8.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1b43ede17f21864e81be2fa654110bf1e793774238d86ef8555c37e6519c0403"
+
+[[package]]
+name = "lib"
 version = "0.1.0"
 dependencies = [
  "serde",
+ "serde_cbor",
 ]
 
 [[package]]
@@ -34,6 +47,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ddc6f9cc94d67c0e21aaf7eda3a010fd3af78ebf6e096aa6e2e13c79749cce4f"
 dependencies = [
  "serde_derive",
+]
+
+[[package]]
+name = "serde_cbor"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f7081ed758ec726a6ed8ee7e92f5d3f6e6f8c3901b1f972e3a4a2f2599fad14f"
+dependencies = [
+ "byteorder",
+ "half",
+ "serde",
 ]
 
 [[package]]
