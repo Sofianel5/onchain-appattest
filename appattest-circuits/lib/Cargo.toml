@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 serde_cbor = "0.10"
+serde = { version = "1.0.200", features = ["derive"] }
