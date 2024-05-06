@@ -14,12 +14,11 @@ pub fn validate_assertion(assertion: AssertionObject, client_data: String, publi
     let client_data_hash = hasher.finalize();
 
     // 2. Create nonce.
-    let mut hasher = Sha256::new();
-    let mut raw_nonce: Vec<u8> = assertion.authenticator_data;
-    raw_nonce.extend(&client_data_hash);
-    
-    hasher.update(raw_nonce);
-    let nonce = hasher.finalize();
+    hasher = Sha256::new();
+    let mut nonce_raw: Vec<u8> = assertion.authenticator_data;
+    nonce_raw.extend(&client_data_hash);
+    hasher.update(nonce_raw);
+    let nonce_hash = hasher.finalize();
 
     // 3. Verify signature over nonce.
     let public_key_uncompressed = hex::decode(public_key_uncompressed_hex).expect("decoding error");
@@ -28,12 +27,12 @@ pub fn validate_assertion(assertion: AssertionObject, client_data: String, publi
 
     let signature = Signature::from_der(&assertion.signature).expect("deserializing error");
 
-    println!("\nNONCE: {:?}", nonce);
+    println!("\nHASHED NONCE: {:?}", nonce_hash);
     println!("\nVERIFYING KEY: {:?}", verifying_key);
     println!("\nSIGNATURE: {:?}", signature);
     println!("");
 
-    let verification = verifying_key.verify(&nonce, &signature);
+    let verification = verifying_key.verify(&nonce_hash, &signature);
     let verified = match verification {
         Ok(_) => {
             println!("Signature verified!");
