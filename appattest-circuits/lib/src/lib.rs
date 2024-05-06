@@ -16,8 +16,8 @@ pub struct AttestationObject {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(deny_unknown_fields, rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub struct AssertionObject {
-    pub signature: Vec<u8>,
-    pub authenticator_data: Vec<u8>,
+    pub signature: String,
+    pub authenticator_data: String,
 }
