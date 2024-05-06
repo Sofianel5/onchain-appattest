@@ -12,10 +12,9 @@ fn b64_to_pem(b64: &str) -> String {
     let mut pem = String::from("-----BEGIN CERTIFICATE-----\n");
     for i in 0..b64.len() / 64 {
         pem.push_str(&b64[i * 64..(i + 1) * 64]);
-        if i + 1 < b64.len() / 64 {
-            pem.push_str("\n");
-        }
+        pem.push_str("\n");
     }
+    pem.push_str(&b64[(b64.len() / 64) * 64..]);
     pem.push_str("\n-----END CERTIFICATE-----");
     return pem;
 }
@@ -30,7 +29,7 @@ pub fn validate_certificate_path(cert_path: Vec<String>) {
         // Decode subject certificate.
         let subject_b64_data = cert_path[i].as_str();
         let subject_pem = b64_to_pem(&subject_b64_data);
-        let subject_cert = CapturedX509Certificate::from_pem(subject_pem.as_bytes()).unwrap();
+        let subject_cert = CapturedX509Certificate::from_pem(subject_pem).unwrap();
 
         // Decode issuer certificate.
         let issuer_b64_data: &str;
@@ -41,7 +40,7 @@ pub fn validate_certificate_path(cert_path: Vec<String>) {
             issuer_b64_data = cert_path[i + 1].as_str();
         }
         let issuer_pem = b64_to_pem(&issuer_b64_data);
-        let issuer_cert = CapturedX509Certificate::from_pem(issuer_pem.as_bytes()).unwrap();
+        let issuer_cert = CapturedX509Certificate::from_pem(issuer_pem).unwrap();
 
         // Verify that the subject certificate was issued by the issuer certificate.
         if subject_cert.issuer_name() != issuer_cert.subject_name() {
