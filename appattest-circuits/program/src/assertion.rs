@@ -1,8 +1,8 @@
 use sha2::Digest;
 use sha2::Sha256;
-use lib::{AssertionObject};
-use hex;
+use lib::{AssertionObject, ClientData};
 use p256::{ecdsa::{VerifyingKey, signature::Verifier, Signature}, PublicKey};
+use hex;
 
 use crate::decode::decode_assertion_auth_data;
 use crate::decode::decode_client_data;
@@ -24,12 +24,9 @@ pub fn validate_assertion(assertion: AssertionObject, client_data: Vec<u8>,
 
     // 3. Verify signature over nonce.
     let public_key_uncompressed = hex::decode(public_key_uncompressed_hex).expect("decoding error");
-    let public_key = PublicKey::from_sec1_bytes(&public_key_uncompressed).expect("import error");
-    let verifying_key = VerifyingKey::from(&public_key);
+    let verifying_key: VerifyingKey = PublicKey::from_sec1_bytes(&public_key_uncompressed).expect("import error");
 
-    let signature = Signature::from_der(&assertion.signature).expect("deserializing error");
-
-    let verification = verifying_key.verify(&nonce_hash, &signature);
+    let verification = verifying_key.verify(&nonce_hash, &assertion.signature);
     let verified = match verification {
         Ok(_) => {
             println!("Signature verified!");
