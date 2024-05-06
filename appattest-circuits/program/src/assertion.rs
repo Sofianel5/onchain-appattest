@@ -29,6 +29,7 @@ pub fn validate_assertion(assertion: AssertionObject, client_data: String, publi
 
     println!("\nHASHED NONCE: {:?}", nonce_hash);
     println!("\nVERIFYING KEY: {:?}", verifying_key);
+    println!("\nRAW SIGNATURE: {:?}", assertion.signature);
     println!("\nSIGNATURE: {:?}", signature);
     println!("");
 
