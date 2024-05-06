@@ -62,7 +62,20 @@ pub fn validate_attestation(attestation: AttestationObject, challenge: String) -
 
     let mut hasher = Sha256::new();
     hasher.update(challenge);
-    let challenge_hash = hasher.finalize();
+    let client_data_hash = hasher.finalize().to_string();
+    let composite_hash = attestation.auth_data + client_data_hash;
+    hasher = Sha256::new();
+    hasher.update(composite_hash);
+    let expected_nonce = hasher.finalize().to_string();
 
-
+    let credential_certificate = CapturedX509Certificate::from_pem(
+        b64_to_pem(&attestation.att_stmt.x5c[0]).as_bytes()
+    ).unwrap();
+    for extension in credential_certificate.iter_extensions() {
+        // Check for the extension with OID 1.2.840.113635.100.8.2
+        if (extension.oid() == Oid(Bytes::from_static(&[42,134,72,134,247,99,100,8,2]))) {
+            
+        }
+    }
+    
 }
