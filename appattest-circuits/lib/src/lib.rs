@@ -23,13 +23,6 @@ pub struct AssertionObject {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct AssertionStr {
-    pub signature: String,
-    pub authenticator_data: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AttestedCredentialData {
     pub aaguid: Vec<u8>,
     pub credential_id: Vec<u8>,
