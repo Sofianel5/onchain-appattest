@@ -1,16 +1,19 @@
 use sha2::Digest;
 use sha2::Sha256;
-// use ring::signature;
-// use ring::signature::UnparsedPublicKey;
-use lib::{AssertionObject};
-use p256::{ecdsa::{VerifyingKey, signature::Verifier, Signature}, PublicKey};
+use ring::signature::ECDSA_P256_SHA256_ASN1;
+use ring::signature::UnparsedPublicKey;
+use lib::{AssertionObject, ClientData};
 use hex;
 
-pub fn validate_assertion(assertion: AssertionObject, client_data: String, public_key_uncompressed_hex: String) -> bool {
+use crate::decode::decode_assertion_auth_data;
+use crate::decode::decode_client_data;
+
+pub fn validate_assertion(assertion: AssertionObject, client_data: Vec<u8>, 
+    public_key_uncompressed_hex: String, client_app_id: String, stored_challenge: String, prev_counter: u32) -> bool {
 
     // 1. sha256 hash the clientData
     let mut hasher = Sha256::new();
-    hasher.update(client_data);
+    hasher.update(client_data.clone());
     let client_data_hash = hasher.finalize();
 
     // 2. Create nonce.
@@ -22,18 +25,9 @@ pub fn validate_assertion(assertion: AssertionObject, client_data: String, publi
 
     // 3. Verify signature over nonce.
     let public_key_uncompressed = hex::decode(public_key_uncompressed_hex).expect("decoding error");
-    let public_key = PublicKey::from_sec1_bytes(&public_key_uncompressed).expect("import error");
-    let verifying_key = VerifyingKey::from(&public_key);
+    let verifying_key = UnparsedPublicKey::new(&ECDSA_P256_SHA256_ASN1, public_key_uncompressed);
 
-    let signature = Signature::from_der(&assertion.signature).expect("deserializing error");
-
-    println!("\nHASHED NONCE: {:?}", nonce_hash);
-    println!("\nVERIFYING KEY: {:?}", verifying_key);
-    println!("\nRAW SIGNATURE: {:?}", assertion.signature.clone());
-    println!("\nSIGNATURE: {:?}", signature);
-    println!("");
-
-    let verification = verifying_key.verify(&nonce_hash, &signature);
+    let verification = verifying_key.verify(&nonce_hash, &assertion.signature);
     let verified = match verification {
         Ok(_) => {
             println!("Signature verified!");
@@ -44,15 +38,33 @@ pub fn validate_assertion(assertion: AssertionObject, client_data: String, publi
             false
         },
     };   
+    if !verified {
+        return false;
+    }
 
-    // let auth_data: AuthenticatorData = serde_json::from_slice(&assertion.authenticator_data.clone()).expect("deserializing error");
-    // let auth_data: AuthenticatorData = decode_auth_data(&assertion.authenticator_data).expect("deserializing error");
+    let auth_data = decode_assertion_auth_data(assertion.authenticator_data.clone()).expect("decoding error");
     
     // 4. Verify RP ID.
+    hasher = Sha256::new();
+    hasher.update(client_app_id.clone());
+    let client_app_id_hash = hasher.finalize();
+    if auth_data.rp_id != client_app_id_hash.to_vec() {
+        println!("RP ID is not equal");
+        return false;
+    }
 
     // 5. Verify counter.
+    if auth_data.counter <= prev_counter {
+        println!("counter is less than prev counter");
+        return false;
+    }
 
     // 6. Verify challenge. 
+    let client_data_decoded = decode_client_data(std::str::from_utf8(&client_data).unwrap()).expect("decoding error");
+    if client_data_decoded.challenge != stored_challenge {
+        println!("challenge is not equal");
+        return false;
+    }
 
     return verified;
 }

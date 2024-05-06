@@ -19,7 +19,7 @@ pub struct AttestationObject {
 #[serde(rename_all = "camelCase")]
 pub struct AssertionObject {
     pub signature: Vec<u8>,
-    pub authenticator_data: AuthenticatorData,
+    pub authenticator_data: Vec<u8>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -38,9 +38,14 @@ pub struct AttestedCredentialData {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AuthenticatorData {
-    pub rp_id: Vec<u8>,
-    pub flags: u8, 
+    pub rp_id: Vec<u8>, // 32 bytes
+    pub flags: u8, // 1 byte 
     pub counter: u32,
-    pub att_data: AttestedCredentialData,
-    pub ext_data: Vec<u8>,
+    // pub att_data: AttestedCredentialData,
+    // pub ext_data: Vec<u8>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ClientData {
+    pub challenge: String
 }

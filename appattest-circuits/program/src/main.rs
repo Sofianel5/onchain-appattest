@@ -8,6 +8,7 @@ use base64::prelude::*;
 
 mod attestation;
 use attestation::validate_attestation;
+use decode::base64_to_bytes;
 
 mod assertion;
 use assertion::validate_assertion;
@@ -41,15 +42,23 @@ pub fn main() {
     println!("DECODED ATTESTATION:\n{:?}", attestation_result); 
 
     println!("");
+    println!("");
 
     // Test assertion object.
-    let public_key_uncompressed_hex = "0437c404fa2bbf8fbcf4ee7080573d5fa80c4f6cc3a22f7db43af92c394e7cd1c880c95ab422972625e8e673af1bda2b096654e9b602895601f925bb5941c53082";
     let encoded_assertion = "omlzaWduYXR1cmVYRzBFAiEAyC5S3pcvtSpmTfNSd8aJRJCQ6PbN7Dnv_oPkZNMLeIwCIBmxCHXKYyGswzp_LwOxoL18puHooxudXWqDgtTvRomdcWF1dGhlbnRpY2F0b3JEYXRhWCV87ytV2nJBCLqRJ5b2df8AvnHVLa4mj6aI00ym0n9wdEAAAAAD";
-    let client_data = "eyJjaGFsbGVuZ2UiOiJhc3NlcnRpb24tdGVzdCJ9";
+    let client_data_encoded = "eyJjaGFsbGVuZ2UiOiJhc3NlcnRpb24tdGVzdCJ9";
     
-    let assertion = decode_assertion(encoded_assertion);
-    println!("DECODED ASSERTION:\n{:?}", assertion);
-    let res = validate_assertion(assertion.unwrap(), client_data.to_string(), public_key_uncompressed_hex.to_string());
+    // decode assertion object: assertion is CBOR base64 encoded, client data is base64 encoded
+    let assertion = decode_assertion(encoded_assertion).unwrap();
+    let client_data_decoded = base64_to_bytes(client_data_encoded);
+
+    // things being passed in for verification
+    let stored_challenge = "assertion-test";
+    let client_id = "35MFYY2JY5.co.chiff.attestation-test";
+    let prev_counter = 0;
+    let public_key_uncompressed_hex = "0437c404fa2bbf8fbcf4ee7080573d5fa80c4f6cc3a22f7db43af92c394e7cd1c880c95ab422972625e8e673af1bda2b096654e9b602895601f925bb5941c53082";
+
+    let res = validate_assertion(assertion, client_data_decoded, public_key_uncompressed_hex.to_string(), client_id.to_string(), stored_challenge.to_string(), prev_counter);
     println!("{}", res);
 }
 
