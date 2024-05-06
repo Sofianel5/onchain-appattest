@@ -29,6 +29,8 @@ version = "0.1.0"
 dependencies = [
  "base64",
  "base64-url",
+ "bcder",
+ "bytes",
  "cbor",
  "hex",
  "lib",

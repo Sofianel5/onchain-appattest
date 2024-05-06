@@ -1,13 +1,12 @@
 use base64_url::decode;
-use cbor::{Decoder};
-use rustc_serialize::json::{ToJson};
+use cbor::Decoder;
+use rustc_serialize::json::ToJson;
 use lib::{AttestationObject, AssertionObject, AssertionStr};
 use serde_json;
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 
 // Decode base64 string into attestation object.
 pub fn decode_attestation(encoded: &str) -> Result<AttestationObject, serde_json::Error> {
-    let _bytes = base64_url::decode(encoded).unwrap();
     let decoded = decode(encoded).unwrap();
     let mut d = Decoder::from_bytes(decoded);
     let cbor = d.items().next().unwrap().unwrap();
