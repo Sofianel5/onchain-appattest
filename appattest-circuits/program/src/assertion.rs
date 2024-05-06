@@ -1,8 +1,7 @@
 use sha2::Digest;
 use sha2::Sha256;
-use ring::signature::ECDSA_P256_SHA256_ASN1;
-use ring::signature::UnparsedPublicKey;
 use lib::{AssertionObject, ClientData};
+use p256::{ecdsa::{VerifyingKey, signature::Verifier, Signature}, PublicKey};
 use hex;
 
 use crate::decode::decode_assertion_auth_data;
@@ -25,7 +24,7 @@ pub fn validate_assertion(assertion: AssertionObject, client_data: Vec<u8>,
 
     // 3. Verify signature over nonce.
     let public_key_uncompressed = hex::decode(public_key_uncompressed_hex).expect("decoding error");
-    let verifying_key = UnparsedPublicKey::new(&ECDSA_P256_SHA256_ASN1, public_key_uncompressed);
+    let verifying_key: VerifyingKey = PublicKey::from_sec1_bytes(&public_key_uncompressed).expect("import error");
 
     let verification = verifying_key.verify(&nonce_hash, &assertion.signature);
     let verified = match verification {

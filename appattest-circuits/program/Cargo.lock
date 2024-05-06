@@ -35,7 +35,6 @@ dependencies = [
  "hex",
  "lib",
  "p256",
- "ring",
  "rustc-serialize",
  "serde",
  "serde_cbor",
@@ -881,7 +880,7 @@ dependencies = [
 [[package]]
 name = "sp1-precompiles"
 version = "0.1.0"
-source = "git+https://github.com/succinctlabs/sp1.git#9e0d419a40d43edfd426b36f85de06bcfc24ac1b"
+source = "git+https://github.com/succinctlabs/sp1.git#02c6ea68c07ce92ceaa0a426e91e66173eccaf49"
 dependencies = [
  "anyhow",
  "bincode",
@@ -898,7 +897,7 @@ dependencies = [
 [[package]]
 name = "sp1-zkvm"
 version = "0.1.0"
-source = "git+https://github.com/succinctlabs/sp1.git#9e0d419a40d43edfd426b36f85de06bcfc24ac1b"
+source = "git+https://github.com/succinctlabs/sp1.git#02c6ea68c07ce92ceaa0a426e91e66173eccaf49"
 dependencies = [
  "bincode",
  "cfg-if",
