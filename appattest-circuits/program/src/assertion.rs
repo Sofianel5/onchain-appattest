@@ -2,7 +2,7 @@ use sha2::Digest;
 use sha2::Sha256;
 // use ring::signature;
 // use ring::signature::UnparsedPublicKey;
-use lib::AssertionObject;
+use lib::{AssertionObject};
 use p256::{ecdsa::{VerifyingKey, signature::Verifier, Signature}, PublicKey};
 use hex;
 
@@ -15,7 +15,7 @@ pub fn validate_assertion(assertion: AssertionObject, client_data: String, publi
 
     // 2. Create nonce.
     hasher = Sha256::new();
-    let mut nonce_raw: Vec<u8> = assertion.authenticator_data;
+    let mut nonce_raw: Vec<u8> = assertion.authenticator_data.clone();
     nonce_raw.extend(&client_data_hash);
     hasher.update(nonce_raw);
     let nonce_hash = hasher.finalize();
@@ -29,7 +29,7 @@ pub fn validate_assertion(assertion: AssertionObject, client_data: String, publi
 
     println!("\nHASHED NONCE: {:?}", nonce_hash);
     println!("\nVERIFYING KEY: {:?}", verifying_key);
-    println!("\nRAW SIGNATURE: {:?}", assertion.signature);
+    println!("\nRAW SIGNATURE: {:?}", assertion.signature.clone());
     println!("\nSIGNATURE: {:?}", signature);
     println!("");
 
@@ -43,8 +43,11 @@ pub fn validate_assertion(assertion: AssertionObject, client_data: String, publi
             println!("Signature verification failed!");
             false
         },
-    };    
+    };   
 
+    // let auth_data: AuthenticatorData = serde_json::from_slice(&assertion.authenticator_data.clone()).expect("deserializing error");
+    // let auth_data: AuthenticatorData = decode_auth_data(&assertion.authenticator_data).expect("deserializing error");
+    
     // 4. Verify RP ID.
 
     // 5. Verify counter.
