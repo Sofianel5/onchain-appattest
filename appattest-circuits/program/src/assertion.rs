@@ -1,8 +1,8 @@
 use sha2::Digest;
 use sha2::Sha256;
-use lib::{AssertionObject, ClientData};
-use p256::{ecdsa::{VerifyingKey, signature::Verifier, Signature}, PublicKey};
+use lib::{AssertionObject};
 use hex;
+use p256::{ecdsa::{VerifyingKey, signature::Verifier, Signature}, PublicKey};
 
 use crate::decode::decode_assertion_auth_data;
 use crate::decode::decode_client_data;
@@ -24,16 +24,19 @@ pub fn validate_assertion(assertion: AssertionObject, client_data: Vec<u8>,
 
     // 3. Verify signature over nonce.
     let public_key_uncompressed = hex::decode(public_key_uncompressed_hex).expect("decoding error");
-    let verifying_key: VerifyingKey = PublicKey::from_sec1_bytes(&public_key_uncompressed).expect("import error");
+    let public_key = PublicKey::from_sec1_bytes(&public_key_uncompressed).expect("import error");
+    let verifying_key = VerifyingKey::from(&public_key);
 
-    let verification = verifying_key.verify(&nonce_hash, &assertion.signature);
+    let signature = Signature::from_der(&assertion.signature).expect("deserializing error");
+
+    let verification = verifying_key.verify(&nonce_hash, &signature);
     let verified = match verification {
         Ok(_) => {
-            println!("Signature verified!");
+            // println!("Signature verified!");
             true
         },
         Err(_) => {
-            println!("Signature verification failed!");
+            // println!("Signature verification failed!");
             false
         },
     };   
@@ -59,7 +62,7 @@ pub fn validate_assertion(assertion: AssertionObject, client_data: Vec<u8>,
     }
 
     // 6. Verify challenge. 
-    let client_data_decoded = decode_client_data(std::str::from_utf8(&client_data).unwrap()).expect("decoding error");
+    let client_data_decoded = decode_client_data(String::from_utf8(client_data).unwrap()).expect("decoding error");
     if client_data_decoded.challenge != stored_challenge {
         println!("challenge is not equal");
         return false;
