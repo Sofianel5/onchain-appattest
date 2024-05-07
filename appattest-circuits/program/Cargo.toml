@@ -19,6 +19,7 @@ ring = "0.17.8"
 p256 = "0.13.2"
 hex = "0.4.3"
 base64 = "0.22.1"
-x509-certificate = "0.23.1"
+x509-certificate = { git = "https://github.com/sofianel5/x509-certificate-rs-noring.git" }
 bcder = "0.7.4"
 bytes = "1.5.0"
+der-parser = "9.0.0"
