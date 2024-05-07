@@ -75,7 +75,7 @@ pub fn validate_attestation(attestation: AttestationObject, challenge: String, k
     let mut hasher = Sha256::new();
     hasher.update(challenge);
     let client_data_hash: Vec<u8> = hasher.finalize().to_vec();
-    println!("client_data_hash: {:?}", STANDARD.encode(&client_data_hash));
+    // println!("client_data_hash: {:?}", STANDARD.encode(&client_data_hash));
     let auth_data_decoded = STANDARD.decode(&attestation.auth_data);
     if auth_data_decoded.is_err() {
         panic!("Failed to decode auth_data from base64");
@@ -85,13 +85,13 @@ pub fn validate_attestation(attestation: AttestationObject, challenge: String, k
     // Concatenate auth_data_decoded and client_data_hash.
     let mut composite_data = auth_data_decoded;
     composite_data.extend(&client_data_hash);
-    println!("Composite data: {:?}", STANDARD.encode(&composite_data));
+    // println!("Composite data: {:?}", STANDARD.encode(&composite_data));
 
     // 3. Generate nonce
     hasher = Sha256::new();
     hasher.update(composite_data);
     let expected_nonce = hasher.finalize();
-    println!("Expected nonce: {:?}", STANDARD.encode(expected_nonce.to_vec()));
+    // println!("Expected nonce: {:?}", STANDARD.encode(expected_nonce.to_vec()));
 
     // 4. Obtain credential cert extension with OID 1.2.840.113635.100.8.2 and compare with nonce.
 
@@ -117,12 +117,12 @@ pub fn validate_attestation(attestation: AttestationObject, challenge: String, k
         // expect content to be variant Unknown(Any<'a>), get data from it
         match content {
             der_parser::der::DerObjectContent::Unknown(data) => {
-                println!("Data: {:?}", STANDARD.encode(data.data));
+                // println!("Data: {:?}", STANDARD.encode(data.data));
                 let (_new_rem, new_seq) = parse_der(data.data).unwrap(); 
-                println!("New seq: {:?}", new_seq.content);
+                // println!("New seq: {:?}", new_seq.content);
                 match new_seq.content {
                     der_parser::der::DerObjectContent::OctetString(data) => {
-                        println!("Parsed data: {:?}", STANDARD.encode(data));
+                        // println!("Parsed data: {:?}", STANDARD.encode(data));
                         if data != expected_nonce.to_vec() {
                             panic!("Nonce mismatch.");
                         }
@@ -138,7 +138,7 @@ pub fn validate_attestation(attestation: AttestationObject, challenge: String, k
 
     let credential_public_key = credential_certificate.public_key_data();
     let mut hasher = Sha256::new();
-    println!("Credential public key: {:?}", STANDARD.encode(&credential_public_key));
+    // println!("Credential public key: {:?}", STANDARD.encode(&credential_public_key));
     hasher.update(credential_public_key);
     let credential_public_key_hash = hasher.finalize();
     if credential_public_key_hash.to_vec() != key_id {
