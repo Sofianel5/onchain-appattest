@@ -23,20 +23,11 @@ fn main() {
     stdin.write(&client_data_encoded);
     stdin.write(&stored_challenge);
     stdin.write(&client_id);
+
     stdin.write(&prev_counter);
     stdin.write(&public_key_uncompressed_hex);
     
-    // let client = ProverClient::new();
-    // let mut proof = clientprove(ELF, stdin).expect("proving failed");
-
-    // Read output.
-    // let is_valid_assertion = proof.stdout.read::<bool>();
-
-    // println!("assertion is valid: {}", is_valid_assertion);    
-
-    // Verify proof.
-    // SP1Verifier::verify(ELF, &proof).expect("verification failed");
-
+    // Prover.
     let client = ProverClient::new();
     let (pk, vk) = client.setup(ELF);
     let mut proof = client.prove(&pk, stdin).expect("proving failed");
@@ -47,6 +38,9 @@ fn main() {
 
     // Verify proof.
     client.verify(&proof, &vk).expect("verification failed");
+
+    // Verify proof.
+    // SP1Verifier::verify(ELF, &proof).expect("verification failed");
 
     // Save proof.
     proof

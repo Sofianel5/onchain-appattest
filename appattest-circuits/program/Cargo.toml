@@ -8,6 +8,7 @@ edition = "2021"
 sp1-zkvm = { git = "https://github.com/succinctlabs/sp1.git" }
 lib = { path = "../lib" }
 base64-url = "3.0.0"
+serde_cbor = "0.10"
 serde = { version = "1.0.200", features = ["derive"] }
 serde_derive = "1.0.200"
 serde_json = "1.0.116"
@@ -15,6 +16,8 @@ sha2 = "0.10.8"
 p256 = "0.13.2"
 hex = "0.4.3"
 base64 = "0.22.1"
+serde_cbor = "0.11.2"
+x509-certificate = { git = "https://github.com/sofianel5/x509-certificate-rs-noring.git" }
 bcder = "0.7.4"
 bytes = "1.5.0"
-serde_cbor = "0.11.2"
+der-parser = "9.0.0"
