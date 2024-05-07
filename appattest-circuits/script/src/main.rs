@@ -23,6 +23,7 @@ fn main() {
     stdin.write(&client_data_encoded);
     stdin.write(&stored_challenge);
     stdin.write(&client_id);
+
     stdin.write(&prev_counter);
     stdin.write(&public_key_uncompressed_hex);
     
