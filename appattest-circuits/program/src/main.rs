@@ -37,7 +37,6 @@ pub fn main() {
     let key_id = decode_base64_to_bytes(&raw_key_id);
     let is_valid_attestation = validate_attestation(attestation, challenge.to_string(), key_id, app_id, production);
 
-
     //------------------ ASSERTION ------------------ //
 
     // let encoded_assertion = "omlzaWduYXR1cmVYRzBFAiEAyC5S3pcvtSpmTfNSd8aJRJCQ6PbN7Dnv_oPkZNMLeIwCIBmxCHXKYyGswzp_LwOxoL18puHooxudXWqDgtTvRomdcWF1dGhlbnRpY2F0b3JEYXRhWCV87ytV2nJBCLqRJ5b2df8AvnHVLa4mj6aI00ym0n9wdEAAAAAD";
@@ -52,9 +51,11 @@ pub fn main() {
     let assertion = decode_assertion(encoded_assertion.to_string()).unwrap();
     let client_data_decoded = decode_base64_to_bytes(&client_data_encoded.to_string());
 
-    let is_valid_attestation = validate_assertion(assertion, client_data_decoded, public_key_uncompressed_hex.to_string(), client_id.to_string(), stored_challenge.to_string(), prev_counter);
+    let is_valid_assertion = validate_assertion(assertion, client_data_decoded, public_key_uncompressed_hex.to_string(), client_id.to_string(), stored_challenge.to_string(), prev_counter);
     // println!("{}", is_valid_attestation);
+
     sp1_zkvm::io::commit(&is_valid_attestation);
+    sp1_zkvm::io::commit(&is_valid_assertion);
 }
 
 

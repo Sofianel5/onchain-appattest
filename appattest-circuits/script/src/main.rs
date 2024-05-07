@@ -1,8 +1,8 @@
 //! A simple script to generate and verify the proof of a given program.
 
-use sp1_core::{SP1Prover, SP1Stdin, SP1Verifier};
+use sp1_sdk::{utils, ProverClient, SP1Stdin};
 
-const ELF: &[u8] = include_bytes!("../../program/elf/riscv32im-sp1-zkvm-elf");
+const ELF: &[u8] = include_bytes!("../../program/elf/riscv32im-succinct-zkvm-elf");
 
 fn main() {
     // Generate proof.
@@ -39,15 +39,31 @@ fn main() {
     stdin.write(&prev_counter);
     stdin.write(&public_key_uncompressed_hex);
 
-    let mut proof = SP1Prover::prove(ELF, stdin).expect("proving failed");
+    // NEW SDK --> not yet pushed to SP1
+    // let mut proof = SP1Prover::prove(ELF, stdin).expect("proving failed");
+
+    // Set up prover.
+    let client = ProverClient::new();
+    let (pk, vk) = client.setup(ELF);
+    let mut proof = client.prove(&pk, stdin).expect("proving failed");
 
     // Read output.
-    let is_valid_assertion = proof.stdout.read::<bool>();
+    let is_valid_attestation = proof.public_values.read::<bool>();
+    let is_valid_assertion = proof.public_values.read::<bool>();
 
-    println!("assertion is valid: {}", is_valid_assertion);
+    println!("attestation is valid: {}", is_valid_attestation);
+    println!("assertion is valid {:}", is_valid_assertion);
+
 
     // Verify proof.
-    SP1Verifier::verify(ELF, &proof).expect("verification failed");
+    client.verify(&proof, &vk).expect("verification failed");
+
+    // Read output.
+    // let is_valid_assertion = proof.stdout.read::<bool>();
+    // println!("assertion is valid: {}", is_valid_assertion);
+
+    // Verify proof. (NEW SDK --> not yet pushed to SP1)
+    // SP1Verifier::verify(ELF, &proof).expect("verification failed");
 
     // Save proof.
     proof
