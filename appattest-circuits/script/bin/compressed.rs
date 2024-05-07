@@ -45,7 +45,8 @@ fn main() {
     // Set up prover.
     let client = ProverClient::new();
     let (pk, vk) = client.setup(ELF);
-    let mut proof = client.prove(&pk, stdin).expect("proving failed");
+    // let mut proof = client.prove(&pk, stdin).expect("proving failed");
+    let mut proof = client.prove_compressed(&pk, stdin).expect("proving failed");
 
     // Read output.
     let is_valid_attestation = proof.public_values.read::<bool>();
@@ -56,7 +57,7 @@ fn main() {
 
 
     // Verify proof.
-    client.verify(&proof, &vk).expect("verification failed");
+    client.verify_compressed(&proof, &vk).expect("verification failed");
 
     // Verify proof. (NEW SDK --> not yet pushed to SP1)
     // SP1Verifier::verify(ELF, &proof).expect("verification failed");
