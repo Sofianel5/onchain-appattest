@@ -64,7 +64,7 @@ fn main() {
 
     // Save proof.
     proof
-        .save("compressed-proof-with-io.json")
+        .save("groth16-proof.json")
         .expect("saving proof failed");
 
     println!("succesfully generated and verified proof for the program!")
