@@ -1,6 +1,4 @@
 use base64_url::decode;
-use cbor::{Decoder};
-use rustc_serialize::json::{ToJson};
 use lib::{AttestationObject, AssertionObject, AssertionStr, AuthenticatorData, ClientData};
 use serde_json;
 use base64::{engine::general_purpose::STANDARD, Engine as _};

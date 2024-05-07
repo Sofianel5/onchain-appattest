@@ -8,12 +8,10 @@ edition = "2021"
 sp1-zkvm = { git = "https://github.com/succinctlabs/sp1.git" }
 lib = { path = "../lib" }
 base64-url = "3.0.0"
-cbor = "0.4.1"
 serde_cbor = "0.10"
 serde = { version = "1.0.200", features = ["derive"] }
 serde_derive = "1.0.200"
 serde_json = "1.0.116"
-rustc-serialize = "0.3.25"
 sha2 = "0.10.8"
 p256 = "0.13.2"
 hex = "0.4.3"
