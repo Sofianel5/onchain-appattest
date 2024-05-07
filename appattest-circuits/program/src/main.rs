@@ -22,14 +22,14 @@ pub fn main() {
     let production = sp1_zkvm::io::read::<bool>();
 
     // assertion object
-    let encoded_assertion = sp1_zkvm::io::read::<String>();
-    let client_data_encoded = sp1_zkvm::io::read::<String>();
+    // let encoded_assertion = sp1_zkvm::io::read::<String>();
+    // let client_data_encoded = sp1_zkvm::io::read::<String>();
 
     // verification params
-    let stored_challenge = sp1_zkvm::io::read::<String>();
-    let client_id = sp1_zkvm::io::read::<String>();
-    let prev_counter = sp1_zkvm::io::read::<u32>();
-    let public_key_uncompressed_hex = sp1_zkvm::io::read::<String>();
+    // let stored_challenge = sp1_zkvm::io::read::<String>();
+    // let client_id = sp1_zkvm::io::read::<String>();
+    // let prev_counter = sp1_zkvm::io::read::<u32>();
+    // let public_key_uncompressed_hex = sp1_zkvm::io::read::<String>();
 
     //------------------ ATTESTATION ------------------ //
 
@@ -48,14 +48,14 @@ pub fn main() {
     // let public_key_uncompressed_hex = "0437c404fa2bbf8fbcf4ee7080573d5fa80c4f6cc3a22f7db43af92c394e7cd1c880c95ab422972625e8e673af1bda2b096654e9b602895601f925bb5941c53082";
 
     // decode assertion object (assertion is CBOR base64 encoded, client data is base64 encoded)
-    let assertion = decode_assertion(encoded_assertion.to_string()).unwrap();
-    let client_data_decoded = decode_base64_to_bytes(&client_data_encoded.to_string());
+    // let assertion = decode_assertion(encoded_assertion.to_string()).unwrap();
+    // let client_data_decoded = decode_base64_to_bytes(&client_data_encoded.to_string());
 
-    let is_valid_assertion = validate_assertion(assertion, client_data_decoded, public_key_uncompressed_hex.to_string(), client_id.to_string(), stored_challenge.to_string(), prev_counter);
+    // let is_valid_assertion = validate_assertion(assertion, client_data_decoded, public_key_uncompressed_hex.to_string(), client_id.to_string(), stored_challenge.to_string(), prev_counter);
     // println!("{}", is_valid_attestation);
 
     sp1_zkvm::io::commit(&is_valid_attestation);
-    sp1_zkvm::io::commit(&is_valid_assertion);
+    // sp1_zkvm::io::commit(&is_valid_assertion);
 }
 
 
