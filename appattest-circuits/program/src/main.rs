@@ -2,15 +2,25 @@
 #![no_main]
 sp1_zkvm::entrypoint!(main);
 
-mod decode;
 mod constants;
-use decode::decode_assertion;
-use decode::decode_base64_to_bytes;  
+
+mod decode;
+use decode::{decode_assertion, decode_attestation, decode_base64_to_bytes};
+
+mod attestation;
+use attestation::validate_attestation;
 
 mod assertion;
 use assertion::validate_assertion;
 
 pub fn main() {
+    // attestation object
+    let raw_attestation = sp1_zkvm::io::read::<String>();
+    let challenge = sp1_zkvm::io::read::<String>();
+    let raw_key_id = sp1_zkvm::io::read::<String>();
+    let app_id = sp1_zkvm::io::read::<String>();
+    let production = sp1_zkvm::io::read::<bool>();
+
     // assertion object
     let encoded_assertion = sp1_zkvm::io::read::<String>();
     let client_data_encoded = sp1_zkvm::io::read::<String>();
@@ -21,9 +31,12 @@ pub fn main() {
     let prev_counter = sp1_zkvm::io::read::<u32>();
     let public_key_uncompressed_hex = sp1_zkvm::io::read::<String>();
 
-    //------------------ ATTESTATION ------------------ // 
-    
-    // todo: sofiane
+    //------------------ ATTESTATION ------------------ //
+
+    let attestation = decode_attestation(raw_attestation).unwrap();
+    let key_id = decode_base64_to_bytes(&raw_key_id);
+    let is_valid_attestation = validate_attestation(attestation, challenge.to_string(), key_id, app_id, production);
+
 
     //------------------ ASSERTION ------------------ //
 

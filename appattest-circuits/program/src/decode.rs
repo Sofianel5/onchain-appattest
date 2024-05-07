@@ -1,9 +1,18 @@
 use base64_url::decode;
-use lib::{AttestationObject, AssertionObject, AssertionStr, AuthenticatorData, ClientData};
+use lib::{AttestationObject, AssertionObject, AuthenticatorData, ClientData};
 use serde_json;
 use base64::{engine::general_purpose::URL_SAFE, Engine as _};
 
 use serde_cbor::{Value, from_slice};
+
+pub fn decode_attestation(encoded: String) -> Result<AttestationObject, serde_json::Error> {
+    let decoded = URL_SAFE.decode(&encoded.as_bytes()).expect("decoding error");
+    let cbor: Value = from_slice(&decoded).expect("decoding error");
+    let json_str = serde_json::to_string(&cbor).expect("decoding error");
+    let attestation: AttestationObject = serde_json::from_str(&json_str).expect("decoding error");
+    
+    Ok(attestation)
+}
 
 // Decode base64 string into assertion object.
 pub fn decode_assertion(encoded: String) -> Result<AssertionObject, serde_json::Error> {

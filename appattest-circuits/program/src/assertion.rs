@@ -1,6 +1,6 @@
 use sha2::Digest;
 use sha2::Sha256;
-use lib::{AssertionObject};
+use lib::AssertionObject;
 use hex;
 use p256::{ecdsa::{VerifyingKey, signature::Verifier, Signature}, PublicKey};
 
