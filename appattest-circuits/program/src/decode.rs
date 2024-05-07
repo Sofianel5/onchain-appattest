@@ -1,5 +1,5 @@
 use base64_url::decode;
-use lib::{AssertionObject, AuthenticatorData, ClientData};
+use lib::{AttestationObject, AssertionObject, AssertionStr, AuthenticatorData, ClientData};
 use serde_json;
 use base64::{engine::general_purpose::URL_SAFE, Engine as _};
 
