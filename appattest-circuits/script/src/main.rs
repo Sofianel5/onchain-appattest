@@ -1,7 +1,5 @@
 //! A simple script to generate and verify the proof of a given program.
 
-// use sp1_core::io::SP1Stdin;
-// use sp1_prover::SP1Prover;
 use sp1_sdk::{utils, ProverClient, SP1Stdin};
 
 const ELF: &[u8] = include_bytes!("../../program/elf/riscv32im-succinct-zkvm-elf");
