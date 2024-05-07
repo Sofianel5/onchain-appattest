@@ -21,6 +21,7 @@ pub fn decode_assertion_auth_data(s: Vec<u8>) -> Result<AuthenticatorData, serde
         rp_id: (s[0..32]).to_vec(),
         flags: s[32],
         counter: u32::from_be_bytes(s[33..37].try_into().unwrap()),
+        aaguid: if s.len() > 53 { Some((&s[37..53]).to_vec()) } else { None },
         // att_data: &s[37..],
     };
     Ok(auth_data)
