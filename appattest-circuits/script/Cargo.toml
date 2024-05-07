@@ -10,3 +10,7 @@ sp1-sdk = { git = "https://github.com/succinctlabs/sp1", features = ["neon"] }
 [[bin]]
 name = "compressed"
 path = "bin/compressed.rs"
+
+[[bin]]
+name = "groth16"
+path = "bin/groth16.rs"
