@@ -6,6 +6,7 @@ const ELF: &[u8] = include_bytes!("../../program/elf/riscv32im-succinct-zkvm-elf
 
 fn main() {
     // Generate proof.
+    utils::setup_logger();
     let mut stdin = SP1Stdin::new();
 
     // attestation
