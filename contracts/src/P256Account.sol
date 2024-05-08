@@ -69,24 +69,43 @@ contract P256Account is Initializable, SimpleAccount {
         payable(inheritor).transfer(address(this).balance);
     }
 
+    function splitSignatureWithSlicing(
+        bytes calldata sig
+    ) public pure returns (uint8 v, bytes32 r, bytes32 s) {
+        r = bytes32(sig[0:32]); // Copy first 32 bytes
+
+        s = bytes32(sig[32:64]); // Copy 32 more bytes
+
+        v = uint8(bytes1(sig[64:65])); // Copy last byte
+    }
+
+    // Get r and s from signature values
+    function _extractSignatureValues(
+        bytes memory signature
+    ) public pure returns (uint256 r, uint256 s) {
+        assembly {
+            // Load r and s values from signature
+            r := mload(add(signature, 0x20))
+            s := mload(add(signature, 0x40))
+        }
+
+        return (uint256(r), uint256(s));
+    }
+
     // verify signature using DaimoVerifier
     // Address 0xc2b78104907F722DABAc4C69f826a522B2754De4
     function _validateSignature(
         UserOperation calldata userOp,
-        bytes32 messageHash
-    ) internal override returns (uint256 validationData) {
-        bytes signature = userOp.signature;
-        if (signature.length < 1) return 0;
+        bytes32 messageHash,
+        uint256 x,
+        uint256 y
+    ) internal view returns (uint256 validationData) {
+        if (userOp.signature.length < 1) return 0;
 
-        // First bit identifies the keySlot
-        uint8 keySlot = uint8(signature[0]);
+        (uint256 r, uint256 s) = _extractSignatureValues(userOp.signature);
 
-        // If the keySlot is empty, this is an invalid key
-        uint256 x = uint256(keys[keySlot][0]);
-        uint256 y = uint256(keys[keySlot][1]);
-
-        // TODO: might need to break apart signature into r and s
-        bool valid = P256.verifySignature(messageHash, signature, x, y);
+        // FML: need to get x and y from the public key
+        bool valid = P256.verifySignature(messageHash, r, s, x, y);
 
         if (!valid) {
             return SIG_VALIDATION_FAILED;
