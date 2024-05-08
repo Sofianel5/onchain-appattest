@@ -13,6 +13,8 @@ import "./SimpleAccount.sol";
 import "./core/BaseAccount.sol";
 import "./callback/TokenCallbackHandler.sol";
 
+import "p256-verifier/P256.sol";
+
 /**
  * Account that validates P-256 signature for UserOperations.
  */
@@ -22,7 +24,6 @@ contract P256Account is Initializable, SimpleAccount {
     address public verifier;
     IEntryPoint public _entryPoint;
     bytes public publicKey;
-    address public snarkVerifier;
     uint256 InactiveTimeLimit;
     address inheritor;
     uint256 lastActiveTime;
@@ -31,12 +32,10 @@ contract P256Account is Initializable, SimpleAccount {
 
     function initialize(
         IEntryPoint _newEntryPoint,
-        bytes memory _publicKey,
-        address _snarkVerifier
+        bytes memory _publicKey
     ) public initializer {
         _entryPoint = _newEntryPoint;
         publicKey = _publicKey;
-        snarkVerifier = _snarkVerifier;
         InactiveTimeLimit = 0;
         inheritor = address(0);
         lastActiveTime = block.timestamp;
@@ -70,14 +69,26 @@ contract P256Account is Initializable, SimpleAccount {
         payable(inheritor).transfer(address(this).balance);
     }
 
-    /// @inheritdoc BaseAccount
+    // verify signature using DaimoVerifier
+    // Address 0xc2b78104907F722DABAc4C69f826a522B2754De4
     function _validateSignature(
         UserOperation calldata userOp,
-        bytes32
+        bytes32 messageHash
     ) internal override returns (uint256 validationData) {
-        // Add hashedMessage as public input with useropHash
-        (bool success, ) = snarkVerifier.call(userOp.signature);
-        if (!success) {
+        bytes signature = userOp.signature;
+        if (signature.length < 1) return 0;
+
+        // First bit identifies the keySlot
+        uint8 keySlot = uint8(signature[0]);
+
+        // If the keySlot is empty, this is an invalid key
+        uint256 x = uint256(keys[keySlot][0]);
+        uint256 y = uint256(keys[keySlot][1]);
+
+        // TODO: might need to break apart signature into r and s
+        bool valid = P256.verifySignature(messageHash, signature, x, y);
+
+        if (!valid) {
             return SIG_VALIDATION_FAILED;
         }
         return 0;
