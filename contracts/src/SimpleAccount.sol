@@ -6,6 +6,7 @@ pragma solidity ^0.8.12;
 /* solhint-disable reason-string */
 
 import "openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import "openzeppelin-contracts/contracts/proxy/utils/Initializable.sol";
 import "openzeppelin-contracts/contracts/proxy/utils/UUPSUpgradeable.sol";
 
@@ -114,9 +115,11 @@ contract SimpleAccount is
         UserOperation calldata userOp,
         bytes32 userOpHash
     ) internal virtual override returns (uint256 validationData) {
-        bytes32 hash = userOpHash.toEthSignedMessageHash();
-        if (owner != hash.recover(userOp.signature))
-            return SIG_VALIDATION_FAILED;
+        address recovered = ECDSA.recover(
+            MessageHashUtils.toEthSignedMessageHash(userOpHash),
+            userOp.signature
+        );
+        if (owner != recovered) return SIG_VALIDATION_FAILED;
         return 0;
     }
 
