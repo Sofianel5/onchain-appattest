@@ -1,15 +1,23 @@
+use hex;
+use lib::AssertionObject;
+use p256::{
+    ecdsa::{signature::Verifier, Signature, VerifyingKey},
+    PublicKey,
+};
 use sha2::Digest;
 use sha2::Sha256;
-use lib::AssertionObject;
-use hex;
-use p256::{ecdsa::{VerifyingKey, signature::Verifier, Signature}, PublicKey};
 
 use crate::decode::decode_assertion_auth_data;
 use crate::decode::decode_client_data;
 
-pub fn validate_assertion(assertion: AssertionObject, client_data: Vec<u8>, 
-    public_key_uncompressed_hex: String, client_app_id: String, stored_challenge: String, prev_counter: u32) -> bool {
-
+pub fn validate_assertion(
+    assertion: AssertionObject,
+    client_data: Vec<u8>,
+    public_key_uncompressed_hex: String,
+    client_app_id: String,
+    stored_challenge: String,
+    prev_counter: u32,
+) -> bool {
     // 1. sha256 hash the clientData
     let mut hasher = Sha256::new();
     hasher.update(client_data.clone());
@@ -34,18 +42,19 @@ pub fn validate_assertion(assertion: AssertionObject, client_data: Vec<u8>,
         Ok(_) => {
             // println!("Signature verified!");
             true
-        },
+        }
         Err(_) => {
             // println!("Signature verification failed!");
             false
-        },
-    };   
+        }
+    };
     if !verified {
         return false;
     }
 
-    let auth_data = decode_assertion_auth_data(assertion.authenticator_data.clone()).expect("decoding error");
-    
+    let auth_data =
+        decode_assertion_auth_data(assertion.authenticator_data.clone()).expect("decoding error");
+
     // 4. Verify RP ID.
     hasher = Sha256::new();
     hasher.update(client_app_id.clone());
@@ -61,8 +70,9 @@ pub fn validate_assertion(assertion: AssertionObject, client_data: Vec<u8>,
         return false;
     }
 
-    // 6. Verify challenge. 
-    let client_data_decoded = decode_client_data(String::from_utf8(client_data).unwrap()).expect("decoding error");
+    // 6. Verify challenge.
+    let client_data_decoded =
+        decode_client_data(String::from_utf8(client_data).unwrap()).expect("decoding error");
     if client_data_decoded.challenge != stored_challenge {
         println!("challenge is not equal");
         return false;

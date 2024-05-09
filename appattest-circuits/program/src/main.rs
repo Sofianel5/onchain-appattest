@@ -5,13 +5,10 @@ sp1_zkvm::entrypoint!(main);
 mod constants;
 
 mod decode;
-use decode::{decode_assertion, decode_attestation, decode_base64_to_bytes};
+use decode::{decode_attestation, decode_base64_to_bytes};
 
 mod attestation;
 use attestation::validate_attestation;
-
-mod assertion;
-use assertion::validate_assertion;
 
 pub fn main() {
     // attestation object
@@ -33,9 +30,17 @@ pub fn main() {
 
     //------------------ ATTESTATION ------------------ //
 
-    let attestation = decode_attestation(raw_attestation).unwrap();
+    let attestation = decode_attestation(raw_attestation.to_string()).unwrap();
     let key_id = decode_base64_to_bytes(&raw_key_id);
-    let is_valid_attestation = validate_attestation(attestation, challenge.to_string(), key_id, app_id, production);
+    let is_valid_attestation = validate_attestation(
+        attestation,
+        challenge.to_string(),
+        key_id,
+        app_id,
+        production,
+    );
+
+    println!("ATTESTATION VALID: {:?}", is_valid_attestation);
 
     //------------------ ASSERTION ------------------ //
 
@@ -57,5 +62,3 @@ pub fn main() {
     sp1_zkvm::io::commit(&is_valid_attestation);
     // sp1_zkvm::io::commit(&is_valid_assertion);
 }
-
-
