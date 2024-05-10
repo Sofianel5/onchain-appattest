@@ -46,10 +46,15 @@ pub fn validate_certificate_path(cert_path: Vec<String>) -> bool {
             issuer_b64_data = cert_path[i + 1].as_str();
         }
         let issuer_pem = b64_to_pem(&issuer_b64_data);
+        println!("cycle-tracker-start: decode-cert");
         let issuer_cert = Certificate::from_pem(&issuer_pem).unwrap();
+        println!("cycle-tracker-end: decode-cert");
 
+        println!("cycle-tracker-start: extract-key");
         let key = VerifyingKey::try_from(&issuer_cert).unwrap();
+        println!("cycle-tracker-end: extract-key");
 
+        println!("cycle-tracker-start: verify-cert-with-key");
         match key.verify(&subject_cert) {
             Ok(_) => {}
             Err(Error::Verification) => {
@@ -60,6 +65,7 @@ pub fn validate_certificate_path(cert_path: Vec<String>) -> bool {
                 return false;
             }
         }
+        println!("cycle-tracker-end: verify-cert-with-key");
     }
     true
 }
