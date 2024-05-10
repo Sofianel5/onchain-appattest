@@ -1,4 +1,4 @@
-use base64ct::{Base64, Encoding};
+use base64ct::{Base64, Base64UrlUnpadded, Encoding};
 use lib::{
     AssertionObject, AttestationObject, AttestationStatement, AuthenticatorData, ClientData,
 };
@@ -7,7 +7,7 @@ use serde_json;
 use serde_cbor::{from_slice, Value};
 
 pub fn decode_attestation(encoded: String) -> Result<AttestationObject, serde_json::Error> {
-    let decoded = Base64::decode_vec(&encoded).unwrap();
+    let decoded = Base64UrlUnpadded::decode_vec(&encoded).unwrap();
     let cbor: Value = from_slice(&decoded).expect("decoding error");
     let json_str = serde_json::to_string(&cbor).expect("decoding error");
     let attestation: serde_json::Value = serde_json::from_str(&json_str).expect("decoding error");
@@ -50,7 +50,7 @@ pub fn decode_attestation(encoded: String) -> Result<AttestationObject, serde_js
 
 // Decode base64 string into assertion object.
 pub fn _decode_assertion(encoded: String) -> Result<AssertionObject, serde_json::Error> {
-    let decoded = Base64::decode_vec(&encoded).expect("decoding error");
+    let decoded = Base64UrlUnpadded::decode_vec(&encoded).expect("decoding error");
     let cbor: Value = from_slice(&decoded).expect("decoding error");
     let json_str = serde_json::to_string(&cbor).expect("decoding error");
     let assertion: AssertionObject = serde_json::from_str(&json_str).expect("decoding error");
