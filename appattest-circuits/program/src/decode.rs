@@ -1,8 +1,4 @@
-use base64::{
-    engine::general_purpose::{STANDARD, URL_SAFE},
-    Engine as _,
-};
-use base64_url::decode;
+use base64ct::{Base64, Encoding};
 use lib::{
     AssertionObject, AttestationObject, AttestationStatement, AuthenticatorData, ClientData,
 };
@@ -11,7 +7,7 @@ use serde_json;
 use serde_cbor::{from_slice, Value};
 
 pub fn decode_attestation(encoded: String) -> Result<AttestationObject, serde_json::Error> {
-    let decoded = base64_url::decode(&encoded).unwrap();
+    let decoded = Base64::decode_vec(&encoded).unwrap();
     let cbor: Value = from_slice(&decoded).expect("decoding error");
     let json_str = serde_json::to_string(&cbor).expect("decoding error");
     let attestation: serde_json::Value = serde_json::from_str(&json_str).expect("decoding error");
@@ -32,14 +28,14 @@ pub fn decode_attestation(encoded: String) -> Result<AttestationObject, serde_js
                                 _ => panic!("Unexpected value in x5c"),
                             })
                             .collect();
-                        base64::encode(bytes)
+                        Base64::encode_string(&bytes)
                     }
                     _ => panic!("Unexpected value in x5c"),
                 })
                 .collect(),
         },
-        auth_data: base64::encode(
-            attestation["authData"]
+        auth_data: Base64::encode_string(
+            &attestation["authData"]
                 .as_array()
                 .unwrap()
                 .iter()
@@ -53,10 +49,8 @@ pub fn decode_attestation(encoded: String) -> Result<AttestationObject, serde_js
 }
 
 // Decode base64 string into assertion object.
-pub fn decode_assertion(encoded: String) -> Result<AssertionObject, serde_json::Error> {
-    let decoded = URL_SAFE
-        .decode(&encoded.as_bytes())
-        .expect("decoding error");
+pub fn _decode_assertion(encoded: String) -> Result<AssertionObject, serde_json::Error> {
+    let decoded = Base64::decode_vec(&encoded).expect("decoding error");
     let cbor: Value = from_slice(&decoded).expect("decoding error");
     let json_str = serde_json::to_string(&cbor).expect("decoding error");
     let assertion: AssertionObject = serde_json::from_str(&json_str).expect("decoding error");
@@ -82,12 +76,12 @@ pub fn decode_assertion_auth_data(s: Vec<u8>) -> Result<AuthenticatorData, serde
 
 // Base64 decode.
 pub fn decode_base64_to_bytes(encoded: &String) -> Vec<u8> {
-    let decoded = STANDARD.decode(&encoded).unwrap();
+    let decoded = Base64::decode_vec(&encoded).unwrap();
     decoded
 }
 
 // Decode ClientData.
-pub fn decode_client_data(encoded: String) -> Result<ClientData, serde_json::Error> {
+pub fn _decode_client_data(encoded: String) -> Result<ClientData, serde_json::Error> {
     let client_data: ClientData = serde_json::from_str(encoded.to_string().as_str())?;
     Ok(client_data)
 }
