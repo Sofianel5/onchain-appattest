@@ -1,6 +1,6 @@
 use crate::constants::ROOT_CERT;
 use crate::decode::decode_assertion_auth_data;
-use base64::{engine::general_purpose::STANDARD, Engine as _};
+use base64ct::{Base64, Encoding};
 use bytes::Bytes;
 use der_parser::parse_der;
 use lib::AttestationObject;
@@ -73,6 +73,7 @@ pub fn validate_attestation(
     // 1. Verify certificate chain
     let mut cert_path = attestation.att_stmt.x5c.clone();
     cert_path.push(ROOT_CERT.to_string());
+
     let cert_chain_valid = validate_certificate_path(cert_path);
     if !cert_chain_valid {
         return false;
@@ -83,7 +84,7 @@ pub fn validate_attestation(
     hasher.update(challenge);
     let client_data_hash: Vec<u8> = hasher.finalize().to_vec();
     // println!("client_data_hash: {:?}", STANDARD.encode(&client_data_hash));
-    let auth_data_decoded = STANDARD.decode(&attestation.auth_data);
+    let auth_data_decoded = Base64::decode_vec(&attestation.auth_data);
     if auth_data_decoded.is_err() {
         panic!("Failed to decode auth_data from base64");
     }
@@ -92,13 +93,11 @@ pub fn validate_attestation(
     // Concatenate auth_data_decoded and client_data_hash.
     let mut composite_data = auth_data_decoded;
     composite_data.extend(&client_data_hash);
-    // println!("Composite data: {:?}", STANDARD.encode(&composite_data));
 
     // 3. Generate nonce
     hasher = Sha256::new();
     hasher.update(composite_data);
     let expected_nonce = hasher.finalize();
-    // println!("Expected nonce: {:?}", STANDARD.encode(expected_nonce.to_vec()));
 
     // 4. Obtain credential cert extension with OID 1.2.840.113635.100.8.2 and compare with nonce.
     let credential_certificate =
@@ -156,12 +155,13 @@ pub fn validate_attestation(
     hasher = Sha256::new();
     hasher.update(app_id);
     let app_id_hash = hasher.finalize();
-    let auth_data =
-        decode_assertion_auth_data(STANDARD.decode(attestation.auth_data.clone()).unwrap())
-            .expect("decoding error");
+    let auth_data = decode_assertion_auth_data(
+        Base64::decode_vec(&attestation.auth_data.clone().to_string()).unwrap(),
+    )
+    .expect("decoding error");
     if auth_data.rp_id != app_id_hash.to_vec() {
-        println!("RP ID: {:?}", STANDARD.encode(&auth_data.rp_id));
-        println!("App ID hash: {:?}", STANDARD.encode(&app_id_hash));
+        println!("RP ID: {:?}", Base64::encode_string(&auth_data.rp_id));
+        println!("App ID hash: {:?}", Base64::encode_string(&app_id_hash));
         panic!("RP ID hash mismatch.");
     }
 
