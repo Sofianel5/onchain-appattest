@@ -12,6 +12,7 @@ use x509_cert::Certificate;
 use x509_verify::{der::DecodePem, Error, VerifyingKey};
 
 // Parse b64 to pem.
+#[sp1_derive::cycle_tracker]
 fn b64_to_pem(b64: &str) -> String {
     let mut pem = String::from("-----BEGIN CERTIFICATE-----\n");
     for i in 0..b64.len() / 64 {
@@ -24,6 +25,7 @@ fn b64_to_pem(b64: &str) -> String {
 }
 
 // Validate certificate chain.
+#[sp1_derive::cycle_tracker]
 pub fn validate_certificate_path(cert_path: Vec<String>) -> bool {
     if cert_path.len() != cert_path.iter().collect::<HashSet<_>>().len() {
         panic!("Duplicate certificates in certificate path.");
@@ -74,12 +76,15 @@ pub fn validate_attestation(
     let mut cert_path = attestation.att_stmt.x5c.clone();
     cert_path.push(ROOT_CERT.to_string());
 
+    println!("cycle-tracker-start: validate-cert");
     let cert_chain_valid = validate_certificate_path(cert_path);
     if !cert_chain_valid {
         return false;
     }
+    println!("cycle-tracker-end: validate-cert");
 
     // 2. Create clientDataHash
+    println!("cycle-tracker-start: step-2");
     let mut hasher = Sha256::new();
     hasher.update(challenge);
     let client_data_hash: Vec<u8> = hasher.finalize().to_vec();
@@ -89,6 +94,7 @@ pub fn validate_attestation(
         panic!("Failed to decode auth_data from base64");
     }
     let auth_data_decoded = auth_data_decoded.unwrap();
+    println!("cycle-tracker-start: step-2");
 
     // Concatenate auth_data_decoded and client_data_hash.
     let mut composite_data = auth_data_decoded;
@@ -100,9 +106,12 @@ pub fn validate_attestation(
     let expected_nonce = hasher.finalize();
 
     // 4. Obtain credential cert extension with OID 1.2.840.113635.100.8.2 and compare with nonce.
+    println!("cycle-tracker-start: cert-parse");
     let credential_certificate =
         Certificate::from_pem(b64_to_pem(&attestation.att_stmt.x5c[0]).as_bytes()).unwrap();
+    println!("cycle-tracker-end: cert-parse");
 
+    println!("cycle-tracker-start: cert-parse-bytes");
     let mut credential_cert_octets: Option<OctetString> = None;
     for extension in credential_certificate.tbs_certificate.extensions.unwrap() {
         // Check for the extension with OID 1.2.840.113635.100.8.2
@@ -137,6 +146,7 @@ pub fn validate_attestation(
             _ => panic!("Expected Unknown content in extension."),
         }
     }
+    println!("cycle-tracker-end: cert-parse-bytes");
 
     // 5. Get sha256 hash of the credential public key
     let credential_public_key = credential_certificate
@@ -196,6 +206,5 @@ pub fn validate_attestation(
         }
         None => panic!("AAGUID not found."),
     }
-
     true
 }

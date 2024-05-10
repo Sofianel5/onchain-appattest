@@ -24,6 +24,7 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "sha2",
+ "sp1-derive",
  "sp1-zkvm",
  "x509-cert",
  "x509-verify",
@@ -969,9 +970,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "sp1-derive"
+version = "0.1.0"
+source = "git+https://github.com/succinctlabs/sp1.git#e699a98dbf7b512901d931d86763d58793633adf"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "sp1-precompiles"
 version = "0.1.0"
-source = "git+https://github.com/succinctlabs/sp1.git#227bbdd3a41543d33b3cfa5b4e6533960cdc9e5c"
+source = "git+https://github.com/succinctlabs/sp1.git#e699a98dbf7b512901d931d86763d58793633adf"
 dependencies = [
  "anyhow",
  "bincode",
@@ -988,7 +999,7 @@ dependencies = [
 [[package]]
 name = "sp1-zkvm"
 version = "0.1.0"
-source = "git+https://github.com/succinctlabs/sp1.git#227bbdd3a41543d33b3cfa5b4e6533960cdc9e5c"
+source = "git+https://github.com/succinctlabs/sp1.git#e699a98dbf7b512901d931d86763d58793633adf"
 dependencies = [
  "bincode",
  "cfg-if",
