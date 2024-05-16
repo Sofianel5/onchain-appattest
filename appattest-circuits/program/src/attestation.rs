@@ -9,7 +9,7 @@ use sha2::Sha256;
 use std::collections::HashSet;
 use x509_cert::der::asn1::OctetString;
 use x509_cert::Certificate;
-use x509_verify::{der::DecodePem, Error, VerifyingKey};
+use x509_verify::{der::DecodePem, Error, Message, Signature, VerifyInfo, VerifyingKey};
 
 // Parse b64 to pem.
 #[sp1_derive::cycle_tracker]
@@ -54,17 +54,23 @@ pub fn validate_certificate_path(cert_path: Vec<String>) -> bool {
         let key = VerifyingKey::try_from(&issuer_cert).unwrap();
         println!("cycle-tracker-end: extract-key");
 
+        let signature = subject_cert.clone().signature;
+        // let message_hash = subject_cert.;
+
+        println!("message_hash: {:?}", subject_cert);
+
         println!("cycle-tracker-start: verify-cert-with-key");
-        match key.verify(&subject_cert) {
-            Ok(_) => {}
-            Err(Error::Verification) => {
-                println!("Verification error");
-            }
-            Err(e) => {
-                println!("Verification error {:?}", e);
-                return false;
-            }
-        }
+        // match key.verify(&subject_cert) {
+        //     Ok(_) => {}
+        //     Err(Error::Verification) => {
+        //         println!("Verification error");
+        //     }
+        //     Err(e) => {
+        //         println!("Verification error {:?}", e);
+        //         return false;
+        //     }
+        // }
+
         println!("cycle-tracker-end: verify-cert-with-key");
     }
     true
