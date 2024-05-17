@@ -2,17 +2,32 @@ use crate::constants::ROOT_CERT;
 use crate::decode::decode_assertion_auth_data;
 use base64ct::{Base64, Encoding};
 use bytes::Bytes;
+use der_parser::der::parse_der_integer;
+use der_parser::der::parse_der_sequence;
+use der_parser::der::parse_der_sequence_defined;
+use der_parser::der::DerObjectContent;
 use der_parser::parse_der;
 use lib::AttestationObject;
+use p256::ecdsa::{
+    signature::Verifier as P256Verifier, Signature as P256Signature,
+    VerifyingKey as P256VerifyingKey,
+};
+use p384::ecdsa::{
+    signature::Verifier as P384Verifier, Signature as P384Signature,
+    VerifyingKey as P384VerifyingKey,
+};
 use sha2::Digest;
 use sha2::Sha256;
 use std::collections::HashSet;
 use x509_cert::der::asn1::OctetString;
+use x509_cert::der::Encode;
 use x509_cert::Certificate;
-use x509_verify::{der::DecodePem, Error, Message, Signature, VerifyInfo, VerifyingKey};
+use x509_verify::der::DecodePem;
+use x509_verify::VerifyInfo;
+use x509_verify::{MessageRef, Signature};
 
 // Parse b64 to pem.
-#[sp1_derive::cycle_tracker]
+// #[sp1_derive::cycle_tracker]
 fn b64_to_pem(b64: &str) -> String {
     let mut pem = String::from("-----BEGIN CERTIFICATE-----\n");
     for i in 0..b64.len() / 64 {
@@ -25,7 +40,7 @@ fn b64_to_pem(b64: &str) -> String {
 }
 
 // Validate certificate chain.
-#[sp1_derive::cycle_tracker]
+// #[sp1_derive::cycle_tracker]
 pub fn validate_certificate_path(cert_path: Vec<String>) -> bool {
     if cert_path.len() != cert_path.iter().collect::<HashSet<_>>().len() {
         panic!("Duplicate certificates in certificate path.");
@@ -46,20 +61,59 @@ pub fn validate_certificate_path(cert_path: Vec<String>) -> bool {
             issuer_b64_data = cert_path[i + 1].as_str();
         }
         let issuer_pem = b64_to_pem(&issuer_b64_data);
-        println!("cycle-tracker-start: decode-cert");
+        // println!("cycle-tracker-start: decode-cert");
         let issuer_cert = Certificate::from_pem(&issuer_pem).unwrap();
-        println!("cycle-tracker-end: decode-cert");
+        // println!("cycle-tracker-end: decode-cert");
 
-        println!("cycle-tracker-start: extract-key");
-        let key = VerifyingKey::try_from(&issuer_cert).unwrap();
-        println!("cycle-tracker-end: extract-key");
+        let key_bytes = issuer_cert
+            .tbs_certificate
+            .subject_public_key_info
+            .subject_public_key
+            .as_bytes()
+            .expect("Failed to get public key bytes");
+        println!("key bytes: {:?}", key_bytes.len());
 
-        let signature = subject_cert.clone().signature;
-        // let message_hash = subject_cert.;
+        let raw_signature = subject_cert
+            .signature
+            .as_bytes()
+            .expect("Failed to get signature bytes");
 
-        println!("message_hash: {:?}", subject_cert);
+        let msg = subject_cert
+            .tbs_certificate
+            .to_der()
+            .expect("error encoding message");
 
-        println!("cycle-tracker-start: verify-cert-with-key");
+        // let raw_signature = parse_signature(raw_signature_bytes).unwrap();
+        println!("raw_signature: {:?}", raw_signature);
+
+        // P256 OID: 1.2.840.10045.2.1
+        if key_bytes.len() == 64 {
+            println!("[verifying p256]");
+            let verifying_key: P256VerifyingKey =
+                P256VerifyingKey::from_sec1_bytes(key_bytes).unwrap();
+
+            let signature = P256Signature::from_bytes(raw_signature.into()).unwrap();
+
+            let verify = verifying_key.verify(&msg, &signature);
+            println!("verify: {:?}", verify);
+        }
+        // P384 OID: 1.3.132.0.34
+        else if key_bytes.len() == 97 {
+            println!("[verifying p384]");
+            let verifying_key: P384VerifyingKey =
+                P384VerifyingKey::from_sec1_bytes(key_bytes).unwrap();
+
+            let signature = P384Signature::from_bytes(raw_signature[1..97].into()).unwrap();
+
+            println!("signature : {:?}", signature);
+            // println!("signature : {:?}", );
+            let verify = verifying_key.verify(&msg, &signature).unwrap();
+            println!("verify : {:?}", verify);
+        } else {
+            println!("Signature algorithm not supported");
+            return false;
+        }
+
         // match key.verify(&subject_cert) {
         //     Ok(_) => {}
         //     Err(Error::Verification) => {
@@ -70,8 +124,6 @@ pub fn validate_certificate_path(cert_path: Vec<String>) -> bool {
         //         return false;
         //     }
         // }
-
-        println!("cycle-tracker-end: verify-cert-with-key");
     }
     true
 }
