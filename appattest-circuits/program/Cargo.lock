@@ -19,7 +19,6 @@ dependencies = [
  "hex",
  "lib",
  "p256",
- "p384",
  "serde",
  "serde_cbor",
  "serde_derive",
@@ -339,7 +338,6 @@ dependencies = [
  "ff",
  "generic-array",
  "group",
- "hkdf",
  "pem-rfc7468",
  "pkcs8",
  "rand_core",
@@ -434,15 +432,6 @@ name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
-
-[[package]]
-name = "hkdf"
-version = "0.12.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b5f8eb2ad728638ea2c7d47a21db23b7b58a72ed6a38256b8a1849f15fbbdf7"
-dependencies = [
- "hmac",
-]
 
 [[package]]
 name = "hmac"
@@ -645,8 +634,7 @@ checksum = "3fdb12b2476b595f9358c5161aa467c2438859caa136dec86c26fdd2efe17b92"
 [[package]]
 name = "p256"
 version = "0.13.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9863ad85fa8f4460f9c48cb909d38a0d689dba1f6f6988a5e3e0d31071bcd4b"
+source = "git+https://github.com/kayleegeorge/elliptic-curves.git?rev=e158ce5#e158ce5cf0e9acee2fd76aff2a628334f5c771e5"
 dependencies = [
  "ecdsa",
  "elliptic-curve",
@@ -657,8 +645,7 @@ dependencies = [
 [[package]]
 name = "p384"
 version = "0.13.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70786f51bcc69f6a4c0360e063a4cac5419ef7c5cd5b3c99ad70f3be5ba79209"
+source = "git+https://github.com/kayleegeorge/elliptic-curves.git?rev=e158ce5#e158ce5cf0e9acee2fd76aff2a628334f5c771e5"
 dependencies = [
  "ecdsa",
  "elliptic-curve",
@@ -735,8 +722,7 @@ checksum = "5b40af805b3121feab8a3c29f04d8ad262fa8e0561883e7653e024ae4479e6de"
 [[package]]
 name = "primeorder"
 version = "0.13.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "353e1ca18966c16d9deb1c69278edbc5f194139612772bd9537af60ac231e1e6"
+source = "git+https://github.com/kayleegeorge/elliptic-curves.git?rev=e158ce5#e158ce5cf0e9acee2fd76aff2a628334f5c771e5"
 dependencies = [
  "elliptic-curve",
 ]
@@ -1212,8 +1198,7 @@ dependencies = [
 [[package]]
 name = "x509-verify"
 version = "0.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e407b6fb3a8638bc7af2216647e045f3ce6cd71235e84ada35dd03c77a6cd6d"
+source = "git+https://github.com/kayleegeorge/x509-verify#665798b837fc84897ab6505a71e050742253858d"
 dependencies = [
  "const-oid",
  "der",

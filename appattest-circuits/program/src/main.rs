@@ -16,6 +16,7 @@ pub fn main() {
     let raw_key_id = String::from("AcP/pnpoNVPIJYZOvmIvWzDvmxkFoQCE4Uu7Nk6WiAA=");
     let app_id = String::from("35MFYY2JY5.co.chiff.attestation-test");
     let production = false;
+    let leaf_cert_only = true;
 
     // attestation object
     // let raw_attestation = sp1_zkvm::io::read::<String>();
@@ -44,6 +45,7 @@ pub fn main() {
         key_id,
         app_id,
         production,
+        leaf_cert_only,
     );
 
     println!("ATTESTATION VALID: {:?}", is_valid_attestation);

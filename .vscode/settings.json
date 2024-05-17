@@ -1,5 +1,5 @@
 {
     "rust-analyzer.linkedProjects": [
-    "/Users/kayleegeorge/code/app-attest/appattest-circuits/program/Cargo.toml"
+   "/Users/kayleegeorge/code/onchain-appattest/appattest-circuits/program/Cargo.toml" 
 ]
 }
